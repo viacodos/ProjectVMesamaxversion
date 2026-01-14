@@ -15,7 +15,6 @@
     @apply bg-glass-light backdrop-blur-glass border border-glass shadow-glass;
   }
 
-  /* Mobile optimizations */
   @media (max-width: 768px) {
     .glass, .glass-dark, .glass-light {
       backdrop-filter: blur(10px);
@@ -40,10 +39,10 @@
 
 @layer base {
   body {
-    @apply bg-primary-darkest text-white dark:bg-primary-darkest dark:text-white;
+    @apply bg-primary-darkest text-white;
   }
 
-  .light body {
+  :root.light body {
     @apply bg-gray-50 text-gray-900;
   }
 

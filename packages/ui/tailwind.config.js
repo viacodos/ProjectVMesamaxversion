@@ -1,39 +1,61 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  darkMode: 'class',
+  darkMode: ['class', 'class'],
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
     "../../apps/frontend-user/**/*.{js,jsx,ts,tsx}",
     "../../apps/frontend-admin/**/*.{js,jsx,ts,tsx}"
   ],
   theme: {
-    extend: {
-      colors: {
-        primary: {
-          darkest: '#031716',
-          dark: '#032F30',
-          DEFAULT: '#0A7075',
-          light: '#0C969C',
-          lighter: '#6BA3BE',
-          muted: '#274D60'
-        }
-      },
-      backdropBlur: {
-        glass: '20px'
-      },
-      backgroundColor: {
-        'glass': 'rgba(3, 47, 48, 0.25)',
-        'glass-dark': 'rgba(3, 23, 22, 0.4)',
-        'glass-light': 'rgba(107, 163, 190, 0.15)'
-      },
-      borderColor: {
-        'glass': 'rgba(107, 163, 190, 0.18)'
-      },
-      boxShadow: {
-        'glass': '0 8px 32px 0 rgba(3, 23, 22, 0.37)',
-        'glass-lg': '0 12px 48px 0 rgba(3, 23, 22, 0.5)'
-      }
-    }
+  	extend: {
+  		colors: {
+  			primary: {
+  				darkest: '#031716',
+  				dark: '#032F30',
+  				DEFAULT: '#0A7075',
+  				light: '#0C969C',
+  				lighter: '#6BA3BE',
+  				muted: '#274D60'
+  			}
+  		},
+  		backdropBlur: {
+  			glass: '20px'
+  		},
+  		backgroundColor: {
+  			glass: 'rgba(3, 47, 48, 0.25)',
+  			'glass-dark': 'rgba(3, 23, 22, 0.4)',
+  			'glass-light': 'rgba(107, 163, 190, 0.15)'
+  		},
+  		borderColor: {
+  			glass: 'rgba(107, 163, 190, 0.18)'
+  		},
+  		boxShadow: {
+  			glass: '0 8px 32px 0 rgba(3, 23, 22, 0.37)',
+  			'glass-lg': '0 12px 48px 0 rgba(3, 23, 22, 0.5)'
+  		},
+  		keyframes: {
+  			'accordion-down': {
+  				from: {
+  					height: '0'
+  				},
+  				to: {
+  					height: 'var(--radix-accordion-content-height)'
+  				}
+  			},
+  			'accordion-up': {
+  				from: {
+  					height: 'var(--radix-accordion-content-height)'
+  				},
+  				to: {
+  					height: '0'
+  				}
+  			}
+  		},
+  		animation: {
+  			'accordion-down': 'accordion-down 0.2s ease-out',
+  			'accordion-up': 'accordion-up 0.2s ease-out'
+  		}
+  	}
   },
-  plugins: []
+  plugins: [require('tailwindcss-animate')]
 }
