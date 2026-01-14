@@ -18,3 +18,4 @@ export { cn } from './src/lib/utils';
 
 // Export theme
 export { ThemeProvider, useTheme } from './src/components/ThemeContext';
+export { ThemeToggle } from './src/components/ThemeToggle';

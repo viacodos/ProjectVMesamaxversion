@@ -55,8 +55,10 @@ router.post('/calculate-price', async (req, res) => {
     }
 });
 
+const { pdfLimiter } = require('../middleware/security');
+
 // GET /api/packages/generate-pdf/:packageId - Generate PDF itinerary
-router.get('/generate-pdf/:packageId', async (req, res) => {
+router.get('/generate-pdf/:packageId', pdfLimiter, async (req, res) => {
     try {
         const packageId = req.params.packageId;
         const [packageData] = await pool.execute('SELECT * FROM packages WHERE package_id = ?', [packageId]);

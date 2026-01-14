@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const { apiLimiter } = require('./middleware/security');
 const pool = require('./config/database');
 
 const itineraryRoutes = require('./routes/itinerary');
@@ -21,17 +22,12 @@ const PORT = process.env.PORT || 5000;
 // Security middleware
 app.use(helmet());
 app.use(cors({
-    origin: process.env.FRONTEND_URL.split(',') || ['http://localhost:5173', 'http://localhost:5174'],
+    origin: process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(',') : ['http://localhost:5173', 'http://localhost:5174'],
     credentials: true
 }));
 
-// Rate limiting - Increased for development
-const limiter = rateLimit({
-    windowMs: 1 * 60 * 1000, // 1 minute window
-    max: 200, // 200 requests per minute
-    message: { success: false, error: 'Too many requests, please try again later' }
-});
-app.use('/api/', limiter);
+// Global API Rate Limiting
+app.use('/api/', apiLimiter);
 
 // Body parser
 app.use(express.json());
@@ -169,11 +165,11 @@ app.get('/api/destinations', async (req, res) => {
                    best_visit_start, best_visit_end, image_url, tags
             FROM destinations
         `);
-        
+
         if (!destinations || destinations.length === 0) {
             return res.json([]);
         }
-        
+
         const transformedDestinations = destinations.map(dest => ({
             destination_id: dest.destination_id,
             destination_name: dest.destination_name,
@@ -184,7 +180,7 @@ app.get('/api/destinations', async (req, res) => {
             best_season_end: dest.best_visit_end || 'dec',
             tags: parseTags(dest.tags)
         })).filter(dest => dest.latitude && dest.longitude); // Filter out invalid coordinates
-        
+
         res.json(transformedDestinations);
     } catch (error) {
         console.error('Error fetching destinations:', error);
@@ -219,8 +215,8 @@ app.get('/api/activities', async (req, res) => {
 
 // Health check
 app.get('/api/health', (req, res) => {
-    res.json({ 
-        success: true, 
+    res.json({
+        success: true,
         message: 'Server is running',
         timestamp: new Date().toISOString()
     });
@@ -229,9 +225,9 @@ app.get('/api/health', (req, res) => {
 // Error handling middleware
 app.use((err, req, res, next) => {
     console.error('Error:', err);
-    res.status(500).json({ 
+    res.status(500).json({
         success: false,
-        error: 'Internal server error' 
+        error: 'Internal server error'
     });
 });
 
@@ -256,7 +252,7 @@ async function initializeDatabase() {
                 )
             `);
         }
-        
+
         const [tables] = await pool.execute(`SHOW TABLES LIKE 'bookings'`);
         if (tables.length === 0) {
             await pool.execute(`
@@ -283,7 +279,7 @@ async function initializeDatabase() {
                 )
             `);
         }
-        
+
         const [qTables] = await pool.execute(`SHOW TABLES LIKE 'questionnaire_responses'`);
         if (qTables.length === 0) {
             await pool.execute(`

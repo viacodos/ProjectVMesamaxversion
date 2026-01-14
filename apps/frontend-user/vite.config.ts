@@ -5,7 +5,7 @@ import path from 'path'
 export default defineConfig({
     plugins: [react()],
     server: {
-        port: 5173, // Set user to 5173, admin to 5174
+        port: 5173,
         proxy: {
             '/api': {
                 target: 'http://localhost:5000',
@@ -13,14 +13,15 @@ export default defineConfig({
             }
         },
         fs: {
-            // Allow Vite to serve files from the workspace root
-            allow: ['../..'] 
+            allow: ['../..']
         }
     },
     resolve: {
         alias: {
-            // This allows you to use '@ui' as a shortcut in your imports
-            '@ui': path.resolve(__dirname, '../../packages/ui')
+            '@ui': path.resolve(__dirname, '../../packages/ui'),
+            '@': path.resolve(__dirname, '../../packages/ui/src'),
+            '@/lib': path.resolve(__dirname, '../../packages/ui/src/lib'),
+            '@/components': path.resolve(__dirname, '../../packages/ui/src/components')
         }
     }
 })

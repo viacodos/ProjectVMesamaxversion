@@ -12,9 +12,12 @@ const getChatbot = async () => {
     return chatbotInstance;
 };
 
-router.post('/message', async (req, res) => {
+const { chatLimiter, sanitizeInput } = require('../middleware/security');
+
+router.post('/message', chatLimiter, async (req, res) => {
     try {
-        const { message, sessionId } = req.body;
+        let { message, sessionId } = req.body;
+        message = sanitizeInput(message);
 
         if (!message || !message.trim()) {
             return res.status(400).json({
