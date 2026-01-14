@@ -1,0 +1,21 @@
+{
+    "name": "Project V redoing",
+    "version": "1.0.0",
+    "private": true,
+    "workspaces": [
+        "apps/*",
+        "packages/*"
+    ],
+    "scripts": {
+        "dev:user": "npm run dev --workspace=apps/frontend-user",
+        "dev:admin": "npm run dev --workspace=apps/frontend-admin",
+        "dev:backend": "npm run dev --workspace=apps/backend",
+        "dev": "concurrently \"npm run dev:user\" \"npm run dev:admin\" \"npm run dev:backend\"",
+        "docker:up": "docker-compose up -d",
+        "docker:down": "docker-compose down",
+        "docker:logs": "docker-compose logs -f mysql"
+    },
+    "devDependencies": {
+        "concurrently": "^9.2.1"
+    }
+}
