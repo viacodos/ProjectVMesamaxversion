@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { Button, ThemeToggle } from '@project-v-redone/ui';
 import { Link, useLocation } from 'react-router-dom';
+// @ts-ignore - Vite will handle this asset relative imports
+import logo from '@/../../../packages/ui/src/assets/lanka-vacation-official-logo.png';
 
 const navItems = [
     { name: 'Home', path: '/' },
@@ -48,18 +50,12 @@ export const Navbar = () => {
 
                     {/* Logo Area */}
                     <div className="flex-shrink-0 flex items-center gap-2">
-                        <Link to="/" className="flex items-center gap-2 group">
-                            <div className="w-10 h-10 rounded-full bg-ochre flex items-center justify-center text-white font-serif font-bold text-xl shadow-lg ring-2 ring-white/20 group-hover:ring-ochre/50 transition-all">
-                                LV
-                            </div>
-                            <div className="flex flex-col">
-                                <span className={`font-serif font-bold text-lg leading-tight tracking-wide transition-colors ${!isTransparent ? 'text-foreground' : 'text-white'}`}>
-                                    LANKA
-                                </span>
-                                <span className={`font-sans text-[10px] uppercase tracking-[0.2em] transition-colors ${!isTransparent ? 'text-ochre' : 'text-white/80'}`}>
-                                    Vacations
-                                </span>
-                            </div>
+                        <Link to="/" className="flex items-center gap-3 group">
+                            <img
+                                src={logo}
+                                alt="Lanka Vacations"
+                                className="h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+                            />
                         </Link>
                     </div>
 
