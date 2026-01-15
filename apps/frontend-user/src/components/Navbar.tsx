@@ -79,9 +79,6 @@ export const Navbar = () => {
 
                         <div className="ml-4 pl-4 border-l border-white/20 flex items-center gap-3">
                             <ThemeToggle />
-                            <Button variant="outline" size="sm" className={`bg-transparent hover:bg-white/10 hover:border-ochre hover:text-ochre backdrop-blur-sm ${!isTransparent ? 'text-foreground border-foreground/20' : 'text-white border-white/30'}`}>
-                                Inquire
-                            </Button>
                         </div>
                     </div>
 
@@ -118,12 +115,9 @@ export const Navbar = () => {
                             {item.name}
                         </Link>
                     ))}
-                    <div className="pt-4 mt-4 border-t border-white/10 grid grid-cols-2 gap-3">
+                    <div className="pt-4 mt-4 border-t border-white/10 flex flex-col gap-3">
                         <Button className="w-full bg-ochre hover:bg-ochre-dark text-white shadow-lg shadow-ochre/20">
                             Plan Trip
-                        </Button>
-                        <Button variant="outline" className="w-full border-white/20 text-white hover:bg-white/5">
-                            Login
                         </Button>
                     </div>
                 </div>
