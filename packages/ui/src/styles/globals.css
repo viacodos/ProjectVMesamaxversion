@@ -2,21 +2,112 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  body {
+    @apply bg-background text-foreground transition-colors duration-300;
+  }
+
+  :root {
+    --transition-duration: 0.3s;
+
+    /* Light Mode - Softer Colors */
+    --background: 0 0% 98%;
+    /* Soft off-white instead of pure white */
+    --foreground: 222 13% 25%;
+    /* Softer dark gray instead of pure black */
+    --card: 0 0% 100%;
+    --card-foreground: 222 13% 25%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 13% 25%;
+    --primary: 222 47% 11%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 20% 92%;
+    /* Softer secondary */
+    --secondary-foreground: 222 13% 25%;
+    --muted: 210 25% 94%;
+    /* Less aggressive muted */
+    --muted-foreground: 215 10% 45%;
+    /* Softer muted text */
+    --accent: 210 25% 94%;
+    --accent-foreground: 222 13% 25%;
+    --destructive: 0 65% 51%;
+    /* Softer red */
+    --destructive-foreground: 210 40% 98%;
+    --border: 214 20% 88%;
+    /* Softer borders */
+    --input: 214 20% 88%;
+    --ring: 222 47% 11%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    color-scheme: dark;
+
+    /* Dark Mode - Softer Colors */
+    --background: 222 20% 8%;
+    /* Softer dark instead of pure black */
+    --foreground: 210 25% 92%;
+    /* Softer white */
+    --card: 222 18% 11%;
+    --card-foreground: 210 25% 92%;
+    --popover: 222 18% 11%;
+    --popover-foreground: 210 25% 92%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222 47% 11%;
+    --secondary: 217 15% 18%;
+    /* Softer secondary */
+    --secondary-foreground: 210 25% 92%;
+    --muted: 217 15% 18%;
+    /* Less aggressive muted */
+    --muted-foreground: 215 15% 65%;
+    /* Softer muted text */
+    --accent: 217 15% 18%;
+    --accent-foreground: 210 25% 92%;
+    --destructive: 0 60% 50%;
+    /* Softer red */
+    --destructive-foreground: 210 25% 92%;
+    --border: 217 15% 22%;
+    /* Softer borders */
+    --input: 217 15% 22%;
+    --ring: 212 45% 55%;
+  }
+
+  /* View Transition Base Styles */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+
+  /* Ensure the new view sits on top during transition */
+  ::view-transition-new(root) {
+    z-index: 2147483646;
+  }
+
+  /* Prevent the old view from fading out, keep it fully opaque */
+  ::view-transition-old(root) {
+    z-index: 2147483646;
+  }
+}
+
 @layer utilities {
   .glass {
     @apply bg-glass backdrop-blur-glass border border-glass shadow-glass;
   }
-  
+
   .glass-dark {
     @apply bg-glass-dark backdrop-blur-glass border border-glass shadow-glass-lg;
   }
-  
+
   .glass-light {
     @apply bg-glass-light backdrop-blur-glass border border-glass shadow-glass;
   }
 
   @media (max-width: 768px) {
-    .glass, .glass-dark, .glass-light {
+
+    .glass,
+    .glass-dark,
+    .glass-light {
       backdrop-filter: blur(10px);
     }
   }
@@ -30,23 +121,10 @@
       opacity: 0;
       transform: translateY(-10px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
     }
-  }
-}
-
-@layer base {
-  body {
-    @apply bg-primary-darkest text-white;
-  }
-
-  :root.light body {
-    @apply bg-gray-50 text-gray-900;
-  }
-
-  * {
-    -webkit-tap-highlight-color: transparent;
   }
 }

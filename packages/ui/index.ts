@@ -6,6 +6,11 @@ export { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 export { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuTrigger, NavigationMenuContent, NavigationMenuLink } from './src/components/ui/navigation-menu';
 export { Drawer, DrawerTrigger, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter, DrawerClose } from './src/components/ui/drawer';
 export { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from './src/components/ui/pagination';
+export { Input } from './src/components/ui/input';
+export { Label } from './src/components/ui/label';
+export { Separator } from './src/components/ui/separator';
+export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from './src/components/ui/card';
+export { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuLabel } from './src/components/ui/dropdown-menu';
 
 // Export Aceternity UI components
 export { BackgroundGradient } from './src/components/aceternity/background-gradient';

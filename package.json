@@ -6,6 +6,9 @@
         "apps/*",
         "packages/*"
     ],
+    "overrides": {
+        "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+    },
     "scripts": {
         "dev:user": "npm run dev --workspace=apps/frontend-user",
         "dev:admin": "npm run dev --workspace=apps/frontend-admin",

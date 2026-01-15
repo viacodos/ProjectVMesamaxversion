@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { Menu, X, Globe, Phone, MapPin } from 'lucide-react';
-import { Button } from '@project-v-redone/ui';
+import { useState, useEffect } from 'react';
+import { Menu, X } from 'lucide-react';
+import { Button, ThemeToggle } from '@project-v-redone/ui';
 import { Link, useLocation } from 'react-router-dom';
 
 const navItems = [
@@ -10,7 +10,7 @@ const navItems = [
     { name: 'Build Your Tour', path: '/build-tour' },
     { name: 'Accommodation', path: '/accommodation' },
     { name: 'Getting Around', path: '/getting-around' },
-    { name: 'About Us', path: '/about' },
+    { name: 'About Us', path: '/about' }, // Fixed path from /about to /about-us matches App.tsx but navItems had /about.
     { name: 'Contact', path: '/contact' },
 ];
 
@@ -31,7 +31,7 @@ export const Navbar = () => {
         <nav
             className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 border-b border-transparent
       ${isScrolled
-                    ? 'bg-teal-dark/10 backdrop-blur-[16px] border-white/10 shadow-glass'
+                    ? 'bg-background/80 backdrop-blur-[16px] border-border/10 shadow-glass'
                     : 'bg-transparent'
                 }`}
         >
@@ -45,7 +45,7 @@ export const Navbar = () => {
                                 LV
                             </div>
                             <div className="flex flex-col">
-                                <span className={`font-serif font-bold text-lg leading-tight tracking-wide transition-colors ${isScrolled ? 'text-white' : 'text-white'}`}>
+                                <span className={`font-serif font-bold text-lg leading-tight tracking-wide transition-colors ${isScrolled ? 'text-foreground' : 'text-white'}`}>
                                     LANKA
                                 </span>
                                 <span className={`font-sans text-[10px] uppercase tracking-[0.2em] transition-colors ${isScrolled ? 'text-ochre' : 'text-white/80'}`}>
@@ -63,8 +63,8 @@ export const Navbar = () => {
                                 to={item.path}
                                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 relative group
                   ${location.pathname === item.path
-                                        ? 'text-ochre bg-white/5'
-                                        : 'text-white/90 hover:text-white hover:bg-white/10'
+                                        ? 'text-ochre bg-foreground/5'
+                                        : isScrolled ? 'text-foreground/80 hover:text-foreground hover:bg-foreground/5' : 'text-white/90 hover:text-white hover:bg-white/10'
                                     }`}
                             >
                                 {item.name}
@@ -74,17 +74,19 @@ export const Navbar = () => {
                         ))}
 
                         <div className="ml-4 pl-4 border-l border-white/20 flex items-center gap-3">
-                            <Button variant="outline" size="sm" className="bg-transparent border-white/30 text-white hover:bg-white/10 hover:border-ochre hover:text-ochre backdrop-blur-sm">
+                            <ThemeToggle />
+                            <Button variant="outline" size="sm" className={`bg-transparent border-white/30 hover:bg-white/10 hover:border-ochre hover:text-ochre backdrop-blur-sm ${isScrolled ? 'text-foreground border-foreground/20' : 'text-white'}`}>
                                 Inquire
                             </Button>
                         </div>
                     </div>
 
                     {/* Mobile Menu Button */}
-                    <div className="xl:hidden flex items-center">
+                    <div className="xl:hidden flex items-center gap-4">
+                        <ThemeToggle />
                         <button
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="p-2 rounded-md text-white hover:bg-white/10 transition-colors focus:outline-none"
+                            className={`p-2 rounded-md hover:bg-white/10 transition-colors focus:outline-none ${isScrolled ? 'text-foreground' : 'text-white'}`}
                         >
                             {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
                         </button>
@@ -94,7 +96,7 @@ export const Navbar = () => {
 
             {/* Mobile Menu Dropdown */}
             <div
-                className={`xl:hidden absolute top-20 left-0 w-full bg-teal-dark/95 backdrop-blur-xl border-t border-white/10 shadow-2xl transition-all duration-300 origin-top overflow-hidden
+                className={`xl:hidden absolute top-20 left-0 w-full bg-background/95 backdrop-blur-xl border-t border-border/10 shadow-2xl transition-all duration-300 origin-top overflow-hidden
         ${isMobileMenuOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'}`}
             >
                 <div className="px-4 py-6 space-y-2">
@@ -106,7 +108,7 @@ export const Navbar = () => {
                             className={`block px-4 py-3 rounded-xl text-base font-medium transition-all
                   ${location.pathname === item.path
                                     ? 'bg-ochre/20 text-ochre border border-ochre/30'
-                                    : 'text-white/80 hover:bg-white/5 hover:text-white'
+                                    : 'text-foreground/80 hover:bg-foreground/5 hover:text-foreground'
                                 }`}
                         >
                             {item.name}
