@@ -1,19 +1,40 @@
-import React from 'react';
-import { ArrowDown } from 'lucide-react';
-import { Button, TextGenerateEffect } from '@project-v-redone/ui';
+import { useState, useRef } from 'react';
+import { ArrowDown, Play, Pause } from 'lucide-react';
+import { Button } from '@project-v-redone/ui';
+// @ts-ignore - Vite will handle this asset
+import heroVideo from '@/../../../packages/ui/src/assets/191283-889685028_small (2).mp4';
 
 export const HeroSection = () => {
+    const [isPlaying, setIsPlaying] = useState(true);
+    const videoRef = useRef<HTMLVideoElement>(null);
+
+    const toggleVideo = () => {
+        if (videoRef.current) {
+            if (isPlaying) {
+                videoRef.current.pause();
+            } else {
+                videoRef.current.play();
+            }
+            setIsPlaying(!isPlaying);
+        }
+    };
+
     return (
-        <div className="relative h-screen w-full overflow-hidden">
-            {/* Video Background */}
+        <div className="relative h-screen w-full overflow-hidden bg-black">
+            {/* Optimized Video Background */}
             <video
+                ref={videoRef}
                 autoPlay
                 loop
                 muted
                 playsInline
+                preload="auto"
                 className="absolute top-0 left-0 w-full h-full object-cover z-0"
+                style={{
+                    willChange: 'transform',
+                }}
             >
-                <source src="/hero-video.mp4" type="video/mp4" />
+                <source src={heroVideo} type="video/mp4" />
                 Your browser does not support the video tag.
             </video>
 
@@ -48,6 +69,19 @@ export const HeroSection = () => {
                     </Button>
                 </div>
             </div>
+
+            {/* Video Play/Pause Button */}
+            <button
+                onClick={toggleVideo}
+                className="absolute bottom-10 right-10 z-20 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center hover:bg-white/20 transition-all group"
+                aria-label={isPlaying ? 'Pause video' : 'Play video'}
+            >
+                {isPlaying ? (
+                    <Pause className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
+                ) : (
+                    <Play className="w-5 h-5 text-white group-hover:scale-110 transition-transform ml-0.5" />
+                )}
+            </button>
 
             {/* Scroll Indicator */}
             <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-20 animate-bounce">

@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@project-v-redone/ui';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
+import { ChatbotWidget } from './components/ChatbotWidget';
 
 // Pages
 import { Home } from './pages/Home';
@@ -32,6 +33,7 @@ function App() {
             </Routes>
           </main>
           <Footer />
+          <ChatbotWidget />
         </div>
       </Router>
     </ThemeProvider>

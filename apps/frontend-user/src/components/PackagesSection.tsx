@@ -25,11 +25,33 @@ export const PackagesSection = () => {
     const fetchPackages = async () => {
         try {
             setLoading(true);
+
+            // Check cache first
+            const cachedData = localStorage.getItem('packagesCache');
+            const cacheTimestamp = localStorage.getItem('packagesCacheTimestamp');
+            const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
+
+            if (cachedData && cacheTimestamp) {
+                const age = Date.now() - parseInt(cacheTimestamp);
+                if (age < CACHE_DURATION) {
+                    // Use cached data
+                    setPackages(JSON.parse(cachedData));
+                    setLoading(false);
+                    return;
+                }
+            }
+
+            // Fetch from backend
             const response = await fetch('http://localhost:5000/api/packages');
             if (!response.ok) {
                 throw new Error('Failed to fetch packages');
             }
             const data = await response.json();
+
+            // Update cache
+            localStorage.setItem('packagesCache', JSON.stringify(data));
+            localStorage.setItem('packagesCacheTimestamp', Date.now().toString());
+
             setPackages(data);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to load packages');
@@ -104,8 +126,8 @@ export const PackagesSection = () => {
                         onClick={handlePrev}
                         disabled={!canGoPrev}
                         className={`w-12 h-12 rounded-full border border-border flex items-center justify-center transition-all ${canGoPrev
-                                ? 'hover:bg-ochre hover:border-ochre hover:text-white cursor-pointer'
-                                : 'opacity-40 cursor-not-allowed'
+                            ? 'hover:bg-ochre hover:border-ochre hover:text-white cursor-pointer'
+                            : 'opacity-40 cursor-not-allowed'
                             }`}
                         aria-label="Previous packages"
                     >
@@ -115,8 +137,8 @@ export const PackagesSection = () => {
                         onClick={handleNext}
                         disabled={!canGoNext}
                         className={`w-12 h-12 rounded-full bg-foreground text-background flex items-center justify-center transition-all ${canGoNext
-                                ? 'hover:bg-ochre cursor-pointer'
-                                : 'opacity-40 cursor-not-allowed'
+                            ? 'hover:bg-ochre cursor-pointer'
+                            : 'opacity-40 cursor-not-allowed'
                             }`}
                         aria-label="Next packages"
                     >
@@ -198,8 +220,8 @@ export const PackagesSection = () => {
                             key={idx}
                             onClick={() => setCurrentIndex(idx * 3)}
                             className={`h-2 rounded-full transition-all ${Math.floor(currentIndex / 3) === idx
-                                    ? 'w-8 bg-ochre'
-                                    : 'w-2 bg-border hover:bg-ochre/50'
+                                ? 'w-8 bg-ochre'
+                                : 'w-2 bg-border hover:bg-ochre/50'
                                 }`}
                             aria-label={`Go to page ${idx + 1}`}
                         />

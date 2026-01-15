@@ -1,4 +1,5 @@
 const express = require('express');
+// TODO: Implement POST /api/packages for Admin Tour Creation to allow adding new tours via CMS
 const router = express.Router();
 const pool = require('../config/database');
 const PDFDocument = require('pdfkit');

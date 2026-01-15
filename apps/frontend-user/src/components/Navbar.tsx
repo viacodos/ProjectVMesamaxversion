@@ -10,7 +10,7 @@ const navItems = [
     { name: 'Build Your Tour', path: '/build-tour' },
     { name: 'Accommodation', path: '/accommodation' },
     { name: 'Getting Around', path: '/getting-around' },
-    { name: 'About Us', path: '/about' }, // Fixed path from /about to /about-us matches App.tsx but navItems had /about.
+    { name: 'About Us', path: '/about-us' },
     { name: 'Contact', path: '/contact' },
 ];
 
@@ -19,18 +19,26 @@ export const Navbar = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const location = useLocation();
 
+    // Check if we are on the home page
+    const isHome = location.pathname === '/';
+
+    // Navbar should be transparent ONLY if we are on Home AND at the top
+    const isTransparent = isHome && !isScrolled;
+
     useEffect(() => {
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 50);
         };
         window.addEventListener('scroll', handleScroll);
+        // Trigger once on mount to set initial state correctly
+        handleScroll();
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
     return (
         <nav
             className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 border-b border-transparent
-      ${isScrolled
+      ${!isTransparent
                     ? 'bg-background/80 backdrop-blur-[16px] border-border/10 shadow-glass'
                     : 'bg-transparent'
                 }`}
@@ -45,10 +53,10 @@ export const Navbar = () => {
                                 LV
                             </div>
                             <div className="flex flex-col">
-                                <span className={`font-serif font-bold text-lg leading-tight tracking-wide transition-colors ${isScrolled ? 'text-foreground' : 'text-white'}`}>
+                                <span className={`font-serif font-bold text-lg leading-tight tracking-wide transition-colors ${!isTransparent ? 'text-foreground' : 'text-white'}`}>
                                     LANKA
                                 </span>
-                                <span className={`font-sans text-[10px] uppercase tracking-[0.2em] transition-colors ${isScrolled ? 'text-ochre' : 'text-white/80'}`}>
+                                <span className={`font-sans text-[10px] uppercase tracking-[0.2em] transition-colors ${!isTransparent ? 'text-ochre' : 'text-white/80'}`}>
                                     Vacations
                                 </span>
                             </div>
@@ -64,7 +72,7 @@ export const Navbar = () => {
                                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 relative group
                   ${location.pathname === item.path
                                         ? 'text-ochre bg-foreground/5'
-                                        : isScrolled ? 'text-foreground/80 hover:text-foreground hover:bg-foreground/5' : 'text-white/90 hover:text-white hover:bg-white/10'
+                                        : !isTransparent ? 'text-foreground/80 hover:text-foreground hover:bg-foreground/5' : 'text-white/90 hover:text-white hover:bg-white/10'
                                     }`}
                             >
                                 {item.name}
@@ -75,7 +83,7 @@ export const Navbar = () => {
 
                         <div className="ml-4 pl-4 border-l border-white/20 flex items-center gap-3">
                             <ThemeToggle />
-                            <Button variant="outline" size="sm" className={`bg-transparent border-white/30 hover:bg-white/10 hover:border-ochre hover:text-ochre backdrop-blur-sm ${isScrolled ? 'text-foreground border-foreground/20' : 'text-white'}`}>
+                            <Button variant="outline" size="sm" className={`bg-transparent hover:bg-white/10 hover:border-ochre hover:text-ochre backdrop-blur-sm ${!isTransparent ? 'text-foreground border-foreground/20' : 'text-white border-white/30'}`}>
                                 Inquire
                             </Button>
                         </div>
@@ -86,7 +94,7 @@ export const Navbar = () => {
                         <ThemeToggle />
                         <button
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className={`p-2 rounded-md hover:bg-white/10 transition-colors focus:outline-none ${isScrolled ? 'text-foreground' : 'text-white'}`}
+                            className={`p-2 rounded-md hover:bg-white/10 transition-colors focus:outline-none ${!isTransparent ? 'text-foreground' : 'text-white'}`}
                         >
                             {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
                         </button>

@@ -4,6 +4,7 @@ import { FeaturesStrip } from '../components/FeaturesStrip';
 import { PackagesSection } from '../components/PackagesSection';
 import { TourBuilderCTA } from '../components/TourBuilderCTA';
 import { GallerySection } from '../components/GallerySection';
+import { QuoteSection } from '../components/QuoteSection';
 import { TestimonialsSection } from '../components/TestimonialsSection';
 
 export const Home = () => {
@@ -14,6 +15,7 @@ export const Home = () => {
             <PackagesSection />
             <TourBuilderCTA />
             <GallerySection />
+            <QuoteSection />
             <TestimonialsSection />
         </div>
     );
