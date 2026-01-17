@@ -14,7 +14,10 @@ const expertSystemRoutes = require('./routes/expertSystem');
 const chatRoutes = require('./routes/chat');
 const bookingsRoutes = require('./routes/bookings');
 const packagesRoutes = require('./routes/packages');
+const packagesRoutes = require('./routes/packages');
 const hotelsRoutes = require('./routes/hotels');
+const destinationsRoutes = require('./routes/destinations');
+const analyticsRoutes = require('./routes/analytics');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -83,6 +86,52 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/bookings', bookingsRoutes);
 app.use('/api/packages', packagesRoutes);
 app.use('/api/hotels', hotelsRoutes);
+app.use('/api/destinations', destinationsRoutes);
+app.use('/api/analytics', analyticsRoutes);
+
+// System Health Check Endpoint
+app.get('/api/health', async (req, res) => {
+    try {
+        // 1. Check Database
+        await pool.execute('SELECT 1');
+
+        // 2. Check Expert System (Basic Import Check)
+        const { analyzeQuestionnaire } = require('./utils/expertSystem');
+        const expertSystemStatus = typeof analyzeQuestionnaire === 'function' ? 'Operational' : 'Error';
+
+        // 3. Maintenance: Ensure page_views table exists
+        await pool.execute(`
+            CREATE TABLE IF NOT EXISTS page_views (
+                view_id INT AUTO_INCREMENT PRIMARY KEY,
+                page_path VARCHAR(255),
+                user_agent TEXT,
+                ip_address VARCHAR(45),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        res.json({
+            success: true,
+            status: {
+                database: 'Connected',
+                api: 'Online',
+                expertSystem: expertSystemStatus,
+                timestamp: new Date().toISOString()
+            }
+        });
+    } catch (error) {
+        console.error('Health check failed:', error);
+        res.status(500).json({
+            success: false,
+            status: {
+                database: 'Disconnected',
+                api: 'Error',
+                expertSystem: 'Unknown',
+                error: error.message
+            }
+        });
+    }
+});
 
 // Existing routes (keep your chatbot and other routes)
 app.get('/api/questionnaire', async (req, res) => {
@@ -158,35 +207,7 @@ app.get('/api/packages/:id', async (req, res) => {
     }
 });
 
-app.get('/api/destinations', async (req, res) => {
-    try {
-        const [destinations] = await pool.execute(`
-            SELECT destination_id, destination_name, type, description, latitude, longitude,
-                   best_visit_start, best_visit_end, image_url, tags
-            FROM destinations
-        `);
-
-        if (!destinations || destinations.length === 0) {
-            return res.json([]);
-        }
-
-        const transformedDestinations = destinations.map(dest => ({
-            destination_id: dest.destination_id,
-            destination_name: dest.destination_name,
-            type: dest.type,
-            latitude: dest.latitude ? parseFloat(dest.latitude) : null,
-            longitude: dest.longitude ? parseFloat(dest.longitude) : null,
-            best_season_start: dest.best_visit_start || 'jan',
-            best_season_end: dest.best_visit_end || 'dec',
-            tags: parseTags(dest.tags)
-        })).filter(dest => dest.latitude && dest.longitude); // Filter out invalid coordinates
-
-        res.json(transformedDestinations);
-    } catch (error) {
-        console.error('Error fetching destinations:', error);
-        res.status(500).json({ success: false, error: 'Internal server error' });
-    }
-});
+// Old destinations route removed - replaced by routes/destinations.js
 
 app.get('/api/activities', async (req, res) => {
     try {
@@ -313,6 +334,192 @@ async function initializeDatabase() {
                 )
             `);
         }
+
+        // --- New 4-Form System Tables (Relational) ---
+
+        // 1. Destinations
+        await pool.execute(`
+            CREATE TABLE IF NOT EXISTS destinations (
+                destination_id VARCHAR(50) PRIMARY KEY,
+                destination_name VARCHAR(100) NOT NULL,
+                tagline VARCHAR(255),
+                type ENUM('cultural', 'beach', 'adventure', 'wildlife', 'city', 'hill_country', 'historical') NOT NULL,
+                description TEXT,
+                latitude DECIMAL(10, 8),
+                longitude DECIMAL(11, 8),
+                best_visit_start VARCHAR(20),
+                best_visit_end VARCHAR(20),
+                tags TEXT,
+                image_url TEXT,
+                is_active BOOLEAN DEFAULT TRUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // 2. Destination Photos (Relational)
+        await pool.execute(`
+            CREATE TABLE IF NOT EXISTS destination_photos (
+                photo_id INT AUTO_INCREMENT PRIMARY KEY,
+                destination_id VARCHAR(50),
+                photo_url TEXT NOT NULL,
+                alt_text VARCHAR(255),
+                FOREIGN KEY (destination_id) REFERENCES destinations(destination_id) ON DELETE CASCADE
+            )
+        `);
+
+        // 3. Destination Activities (Relational)
+        await pool.execute(`
+            CREATE TABLE IF NOT EXISTS destination_activities (
+                item_id INT AUTO_INCREMENT PRIMARY KEY,
+                destination_id VARCHAR(50),
+                activity_name TEXT NOT NULL,
+                FOREIGN KEY (destination_id) REFERENCES destinations(destination_id) ON DELETE CASCADE
+            )
+        `);
+
+        // 4. Hotels
+        await pool.execute(`
+            CREATE TABLE IF NOT EXISTS hotels (
+                hotel_id VARCHAR(50) PRIMARY KEY,
+                hotel_name VARCHAR(255) NOT NULL,
+                destination_id VARCHAR(50),
+                type VARCHAR(50), -- Changed from strict ENUM to VARCHAR to allow flexible categories if needed, or keep strict if preferred. Reference site uses specific categories.
+                star_rating INT, 
+                address TEXT,
+                website_url TEXT,
+                short_description TEXT,
+                description TEXT, -- For full overview
+                price_per_night_usd DECIMAL(10, 2),
+                room_types TEXT,
+                meal_plans TEXT,
+                amenities TEXT,
+                image_url TEXT, -- Main Image
+                contact_email VARCHAR(100),
+                contact_phone VARCHAR(20),
+                is_active BOOLEAN DEFAULT TRUE,
+                is_featured BOOLEAN DEFAULT FALSE,
+                latitude DECIMAL(10, 8),
+                longitude DECIMAL(11, 8),
+                FOREIGN KEY (destination_id) REFERENCES destinations(destination_id) ON DELETE SET NULL
+            )
+        `);
+
+        // Migration for Hotels
+        const [hotelCols] = await pool.execute("SHOW COLUMNS FROM hotels");
+        const hotelColNames = hotelCols.map(c => c.Field);
+        const newHotelCols = ['website_url', 'short_description', 'star_rating', 'image_url', 'description', 'is_featured'];
+        for (const col of newHotelCols) {
+            if (!hotelColNames.includes(col)) {
+                let type = 'TEXT';
+                if (col === 'is_featured') type = 'BOOLEAN DEFAULT FALSE';
+                await pool.execute(`ALTER TABLE hotels ADD COLUMN ${col} ${type}`);
+            }
+        }
+        // Fix star_rating type if it was added as TEXT by loop or ensure it exists
+        if (!hotelColNames.includes('star_rating')) await pool.execute("ALTER TABLE hotels MODIFY COLUMN star_rating INT");
+
+
+        // 4.5 Hotel Photos (NEW)
+        await pool.execute(`
+            CREATE TABLE IF NOT EXISTS hotel_photos (
+                photo_id INT AUTO_INCREMENT PRIMARY KEY,
+                hotel_id VARCHAR(50),
+                photo_url TEXT NOT NULL,
+                FOREIGN KEY (hotel_id) REFERENCES hotels(hotel_id) ON DELETE CASCADE
+            )
+        `);
+
+        // 5. Services (formerly Activities)
+        await pool.execute(`
+            CREATE TABLE IF NOT EXISTS services (
+                service_id VARCHAR(50) PRIMARY KEY,
+                service_name VARCHAR(255) NOT NULL,
+                type VARCHAR(50),
+                description TEXT,
+                duration_hours DECIMAL(4, 2),
+                intensity ENUM('low', 'medium', 'high'),
+                price_range ENUM('budget', 'moderate', 'premium'),
+                image_url TEXT,
+                tags TEXT,
+                cities TEXT,
+                is_active BOOLEAN DEFAULT TRUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // 6. Packages
+        await pool.execute(`
+            CREATE TABLE IF NOT EXISTS packages (
+                package_id VARCHAR(50) PRIMARY KEY,
+                package_name VARCHAR(255) NOT NULL,
+                package_type VARCHAR(50),
+                description TEXT,
+                short_description TEXT,
+                duration_days INT,
+                price_per_person_usd DECIMAL(10, 2),
+                per_person_cost DECIMAL(10, 2),
+                accommodation_type VARCHAR(50),
+                transport_included BOOLEAN DEFAULT TRUE,
+                transport_type VARCHAR(50),
+                image_url TEXT,
+                map_url TEXT,
+                destinations_covered TEXT, 
+                inclusions TEXT,
+                exclusions TEXT,
+                important_notes TEXT,
+                is_active BOOLEAN DEFAULT TRUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // Check for missing columns in packages and add them (Migration logic)
+        const [pkgCols] = await pool.execute("SHOW COLUMNS FROM packages");
+        const pkgColNames = pkgCols.map(c => c.Field);
+        const newCols = ['short_description', 'map_url', 'destinations_covered', 'inclusions', 'exclusions', 'important_notes'];
+        for (const col of newCols) {
+            if (!pkgColNames.includes(col)) await pool.execute(`ALTER TABLE packages ADD COLUMN ${col} TEXT`);
+        }
+
+        // 7. Package Highlights
+        await pool.execute(`
+            CREATE TABLE IF NOT EXISTS package_highlights (
+                highlight_id INT AUTO_INCREMENT PRIMARY KEY,
+                package_id VARCHAR(50),
+                highlight_text TEXT NOT NULL,
+                order_index INT DEFAULT 0,
+                FOREIGN KEY (package_id) REFERENCES packages(package_id) ON DELETE CASCADE
+            )
+        `);
+
+        // 8. Package Itinerary
+        await pool.execute(`
+            CREATE TABLE IF NOT EXISTS package_itinerary (
+                itinerary_id INT AUTO_INCREMENT PRIMARY KEY,
+                package_id VARCHAR(50),
+                day_number INT NOT NULL,
+                title VARCHAR(255),
+                description TEXT,
+                hotel_id VARCHAR(50),
+                activities TEXT,
+                meals VARCHAR(255),
+                FOREIGN KEY (package_id) REFERENCES packages(package_id) ON DELETE CASCADE
+            )
+        `);
+        // Check for missing columns in itinerary
+        const [itinCols] = await pool.execute("SHOW COLUMNS FROM package_itinerary");
+        if (!itinCols.map(c => c.Field).includes('meals')) {
+            await pool.execute("ALTER TABLE package_itinerary ADD COLUMN meals VARCHAR(255)");
+        }
+
+        // 9. Package Photos (NEW)
+        await pool.execute(`
+            CREATE TABLE IF NOT EXISTS package_photos (
+                photo_id INT AUTO_INCREMENT PRIMARY KEY,
+                package_id VARCHAR(50),
+                photo_url TEXT NOT NULL,
+                FOREIGN KEY (package_id) REFERENCES packages(package_id) ON DELETE CASCADE
+            )
+        `);
     } catch (error) {
         console.error('Database initialization error:', error);
     }
