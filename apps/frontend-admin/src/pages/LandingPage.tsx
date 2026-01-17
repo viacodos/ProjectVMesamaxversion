@@ -15,7 +15,7 @@ export const LandingPage = () => {
         return input.replace(/<\/?[^>]+(>|$)/g, "").trim();
     };
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
 
@@ -28,12 +28,34 @@ export const LandingPage = () => {
             return;
         }
 
-        // Mock Login Logic
-        console.log('Logging in with:', sanitizedUsername, 'Password length:', sanitizedPassword.length);
+        try {
+            // Updated to use the correct port for the backend (5000)
+            // Ideally this should use an environment variable or proxy, but sticking to known working port for now.
+            const response = await fetch('http://localhost:5000/api/auth/admin/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: sanitizedUsername,
+                    password: formData.password
+                }),
+            });
 
-        // In a real app, send sanitizedUsername and formData.password to backend
-        // For now, redirect to dashboard
-        navigate('/dashboard');
+            const data = await response.json();
+
+            if (data.success) {
+                // Save token to localStorage for ManageDestinations to usage
+                localStorage.setItem('adminToken', data.token);
+                localStorage.setItem('adminUser', JSON.stringify(data.user));
+                navigate('/dashboard');
+            } else {
+                setError(data.message || 'Login failed. Please check credentials.');
+            }
+        } catch (err) {
+            console.error('Login error:', err);
+            setError('Connection error. Please ensure the backend server is running.');
+        }
     };
 
     return (
