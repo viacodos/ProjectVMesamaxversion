@@ -5,6 +5,9 @@ import { DashboardLayout } from './components/DashboardLayout';
 import { Analytics } from './pages/Analytics';
 import { AddPackage } from './pages/AddPackage';
 import { ManagePackages } from './pages/ManagePackages';
+import { ManageDestinations } from './pages/ManageDestinations';
+import { ManageTours } from './pages/ManageTours';
+import { ManageAccommodations } from './pages/ManageAccommodations';
 import { SystemTests } from './pages/Tests';
 import { Restricted } from './pages/Restricted';
 import { Profile } from './pages/Profile';
@@ -21,6 +24,9 @@ function App() {
             <Route path="analytics" element={<Analytics />} />
             <Route path="add-package" element={<AddPackage />} />
             <Route path="manage-packages" element={<ManagePackages />} />
+            <Route path="destinations" element={<ManageDestinations />} />
+            <Route path="tours" element={<ManageTours />} />
+            <Route path="accommodations" element={<ManageAccommodations />} />
             <Route path="tests" element={<SystemTests />} />
             <Route path="restricted" element={<Restricted />} />
           </Route>
