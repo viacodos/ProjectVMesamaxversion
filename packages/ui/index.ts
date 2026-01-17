@@ -11,6 +11,14 @@ export { Label } from './src/components/ui/label';
 export { Separator } from './src/components/ui/separator';
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent } from './src/components/ui/card';
 export { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuLabel } from './src/components/ui/dropdown-menu';
+export { Textarea } from './src/components/ui/textarea';
+export { Select, SelectGroup, SelectValue, SelectTrigger, SelectContent, SelectLabel, SelectItem, SelectSeparator, SelectScrollUpButton, SelectScrollDownButton } from './src/components/ui/select';
+export { Badge, badgeVariants } from './src/components/ui/badge';
+export { Table, TableHeader, TableBody, TableFooter, TableHead, TableRow, TableCell, TableCaption } from './src/components/ui/table';
+export { Switch } from './src/components/ui/switch';
+export { Dialog, DialogPortal, DialogOverlay, DialogClose, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from './src/components/ui/dialog';
+export { Tabs, TabsList, TabsTrigger, TabsContent } from './src/components/ui/tabs';
+export { Toaster } from './src/components/ui/sonner';
 
 // Export Aceternity UI components
 export { BackgroundGradient } from './src/components/aceternity/background-gradient';
